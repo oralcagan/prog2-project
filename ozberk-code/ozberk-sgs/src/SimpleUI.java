@@ -26,8 +26,8 @@ public class SimpleUI extends Application {
 
         // Create some cities
         List<City> cities = new ArrayList<>();
-        cities.add(new City("City1", 400,200, 1000000, 50000));
-        cities.add(new City("City2", 300, 200, 2000000, 100000));
+        cities.add(new City("City1", 400,200, 1000000, 50000,32,900));
+        cities.add(new City("City2", 300, 200, 2000000, 100000,100,123123));
         // Add more cities as needed...
 
         // Create a Circle for each city and add it to the Pane
@@ -35,15 +35,14 @@ public class SimpleUI extends Application {
             Circle circle = new Circle(10); // Adjust the size as needed
             circle.setOnMouseClicked((MouseEvent event) -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle(city.getName());
+                alert.setTitle(city.name);
                 alert.setHeaderText(null);
-                alert.setContentText("Population: " + city.getPopulation() + "\nResources: " + city.getResources());
-                alert.showAndWait();
+                alert.setContentText("Population: " + city.population + "\nCostOfLiving: " + city.CostOfLiving + "\nHappinessIndex: " + city.HappinessIndex + "\nCrimeRate: " + city.CrimeRate);                alert.showAndWait();
             });
             pane.getChildren().add(circle);
             // Set the position of the circle based on the city's location
-            circle.setCenterX(city.getXaxis());
-            circle.setCenterY(city.getYaxis());
+            circle.setCenterX(city.Xaxis);
+            circle.setCenterY(city.Yaxis);
         }
 
         // Create a ScrollPane

@@ -29,7 +29,7 @@ public class City {
 //    private int environmentalSustainability;
 //    private int housingAffordabilityIndex;
 //    private int infrastructureQuality;
-
+// asdasdasd
     public City(String name, int Xaxis, int Yaxis, int CrimeRate, int CostOfLiving, int HappinessIndex,  int population){
         this.CrimeRate = CrimeRate;
         this.CostOfLiving = CostOfLiving;

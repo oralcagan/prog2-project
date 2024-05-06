@@ -47,7 +47,7 @@ public class Main {
         //variable creation of people with random stats
 
 
-        for (int i = 0; i < all_people.length; i ++){
+        for (int i = 0; i < all_people.length; i++) {
             group1.assign_group(i, 1, all_people);
             group2.assign_group(i, 2, all_people);
             group3.assign_group(i, 3, all_people);

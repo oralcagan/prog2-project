@@ -13,13 +13,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.transform.Scale;
 
 import java.util.List;
-import java.util.Random;
 
-public class SimpleUI extends Application {
+public class italyUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Load the image
-        Image image = new Image("file:C:\\Users\\OZBERK\\IdeaProjects\\sgs-prog2\\ozberk-code\\ozberk-sgs\\ital.png");
+        Image image = new Image("file:ozberk-code/ozberk-sgs/ital.png");
         ImageView imageView = new ImageView(image);
 
         // Create a Pane and add the ImageView to it

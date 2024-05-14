@@ -18,7 +18,7 @@ public class italyUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Load the image
-        Image image = new Image("file:ozberk-code/ozberk-sgs/ital.png");
+        Image image = new Image("file:./ital.png");
         ImageView imageView = new ImageView(image);
 
         // Create a Pane and add the ImageView to it

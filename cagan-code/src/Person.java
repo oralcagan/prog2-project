@@ -14,10 +14,7 @@ public class Person {
         if(group != null) {
             groupModifier = group.influence;
         }
-        if(personA.charisma > personB.charisma) {
-            Person.changePerson(personA,personB,groupModifier);
-            return;
-        }
+        Person.changePerson(personA,personB,groupModifier);
         Person.changePerson(personB,personA,groupModifier);
     }
 
@@ -25,8 +22,7 @@ public class Person {
         for(int i = 0; i < changer.interests.length; i++) {
             changed.interests[i] += (changer.interests[i] - changed.interests[i])
                     * changer.charisma
-                    * rateOfChange
-                    * 0.1F;
+                    * rateOfChange;
             changed.interests[i] = Math.clamp(changed.interests[i],0.F,1.F);
         }
     }

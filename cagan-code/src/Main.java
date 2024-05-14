@@ -2,12 +2,12 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        int numPeople = 100;
+        int numPeople = 1000;
         float minGroupAffiliation = 0.6F;
         int numInterests = 5;
         int numTurns = 300;
         HashMap<Integer,Person> allPeople = new HashMap<Integer, Person>();
-        Group[] groups = new Group[5];
+        Group[] groups = new Group[numInterests];
         PersonGenerator personGenerator = new PersonGenerator();
         GroupGenerator groupGenerator = new GroupGenerator();
         for(int i = 0; i < numInterests; i++) {
@@ -52,5 +52,13 @@ public class Main {
             }
             interactionSet.clear();
         }
+    }
+    public static List<Integer> createRandomGroup(HashMap<Integer, Person> people, int groupLength) {
+        Random random = new Random();
+        HashSet<Integer> randomPeople = new HashSet<Integer>();
+        for(int i = 0; i < groupLength; i++) {
+            randomPeople.add(random.nextInt(0,people.size()));
+        }
+        return randomPeople.stream().toList();
     }
 }

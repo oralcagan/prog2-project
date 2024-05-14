@@ -9,7 +9,7 @@ public class InteractionSet {
     HashSet<Integer> set = new HashSet<Integer>();
 
     public void clear() {
-        set.clear();
+        this.set.clear();
     }
 
     private int combineNumbers(Integer numA, Integer numB) {
@@ -22,7 +22,7 @@ public class InteractionSet {
 
     public void add(Integer numA, Integer numB) {
         int combinedNumber = this.combineNumbers(numA,numB);
-        set.add(combinedNumber);
+        this.set.add(combinedNumber);
     }
 
     public boolean has(Integer numA, Integer numB) {

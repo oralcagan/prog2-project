@@ -2,11 +2,12 @@ import java.util.HashSet;
 
 public class Person {
     float charisma;
-    float[] interests = new float[5];
+    float[] interests;
     float health = 1;
 
-    Person(float charisma) {
+    Person(float charisma,int numInterests) {
         this.charisma = charisma;
+        this.interests = new float[numInterests];
     }
 
     public static void makePeopleInteract(Person personA,Person personB,Group group) {

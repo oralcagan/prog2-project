@@ -9,7 +9,8 @@ public class City {
     PersonGenerator personGenerator = new PersonGenerator();
     GroupGenerator groupGenerator = new GroupGenerator();
 
-    HashMap<Integer,Integer> lonelyPeople = new HashMap<>();
+    HashSet<Integer> lonelyPeople = new HashSet<>();
+    HashMap<Integer, Integer> notInAGroup = new HashMap<>();
     float minGroupAffiliation;
     int numPeople;
     int numInterests;
@@ -20,66 +21,81 @@ public class City {
             groups[i] = groupGenerator.generateRandomGroup();
         }
         for (int i = 0; i < numPeople; i++) {
-            allPeople.put(i, personGenerator.generateRandomPerson());
+            allPeople.put(i, personGenerator.generateRandomPerson(numInterests));
         }
-        HashSet<Integer> notInAGroup = new HashSet<>();
         for (int key : allPeople.keySet()) {
+            boolean check = false;
             for (int i = 0; i < numInterests; i++) {
                 boolean didJoin = groups[i].updateGroupStatus(allPeople, key, i, minGroupAffiliation);
-                if(!didJoin) {
-                    notInAGroup.add(key);
-                } else {
-                    notInAGroup.remove(key);
-                }
+                check = check || didJoin;
             }
-        }
-        for(Integer key : notInAGroup) {
-            Integer value = this.lonelyPeople.putIfAbsent(key,1);
-            if(value != null) {
-                lonelyPeople.put(key,value+1);
+            if (!check) {
+                notInAGroup.putIfAbsent(key, 1);
             }
+            this.numInterests = numInterests;
+            this.minGroupAffiliation = minGroupAffiliation;
+            this.numPeople = numPeople;
         }
-        this.numInterests = numInterests;
-        this.minGroupAffiliation = minGroupAffiliation;
-        this.numPeople = numPeople;
     }
 
     public void runTurn() {
-        for(Integer key : this.lonelyPeople.keySet()) {
-            boolean didJoin = false;
-            for(int i = 0; i < groups.length; i++) {
-                didJoin = groups[i].updateGroupStatus(allPeople,key,i,minGroupAffiliation);
-            }
-            if(didJoin) {
-                this.lonelyPeople.remove(key);
-            }
-        }
         InteractionSet interactionSet = new InteractionSet();
+//        for (int key : lonelyPeople) {
+//            String String = "hi"; //just a placeholder, here it should be implemented the random interaction of the lonely people
+//        }
         for (int groupIndex = 0; groupIndex < numInterests; groupIndex++) {
             Group group = groups[groupIndex];
             List<Integer> memberList = group.members.stream().toList();
-            for (int i = 0; i < memberList.size(); i++) {
-                for (int j = 1; j < memberList.size(); j++) {
-                    Integer idPersonA = memberList.get(i);
+            int i = 0;
+            for (; i < memberList.size() - 1; i++) {
+                Integer idPersonA = memberList.get(i);
+                boolean social = false;
+                boolean entered = false;
+                for (int j = i + 1; j < memberList.size(); j++) {
+                    //Integer idPersonA = memberList.get(i);
                     Integer idPersonB = memberList.get(j);
                     if (!interactionSet.has(idPersonA, idPersonB)) {
                         interactionSet.add(idPersonA, idPersonB);
                         Person personA = allPeople.get(idPersonA);
                         Person personB = allPeople.get(idPersonB);
                         Person.makePeopleInteract(personA, personB, group);
-                        for (int k = 0; k < numInterests; k++) {
-                            Group groupK = groups[k];
-                            groupK.updateGroupStatus(allPeople, idPersonA, k, minGroupAffiliation);
-                            groupK.updateGroupStatus(allPeople, idPersonB, k, minGroupAffiliation);
+                    }
+                }
+                for (int k = 0; k < numInterests; k++) {
+                    Group groupK = groups[k];
+                    entered = groupK.updateGroupStatus(allPeople, idPersonA, k, minGroupAffiliation);
+                    social = social || entered;
+                }
+                if (!social) {
+                    Integer nTurns;
+                    nTurns = notInAGroup.putIfAbsent(i, 1);
+                    if (nTurns != null) {
+                        notInAGroup.put(i, nTurns + 1);
+                    }
+                }
+                if (i == memberList.size() - 2) {
+                    i += 1;
+                    for (int k = 0; k < numInterests; k++) {
+                        Group groupK = groups[k];
+                        entered = groupK.updateGroupStatus(allPeople, idPersonA, k, minGroupAffiliation);
+                        social = social || entered;
+                    }
+                    if (!social) {
+                        Integer nTurns;
+                        nTurns = notInAGroup.putIfAbsent(i, 1);
+                        if (nTurns != null) {
+                            notInAGroup.put(i, nTurns + 1);
                         }
                     }
                 }
-
             }
         }
         interactionSet.clear();
+        for (int key: notInAGroup.keySet()){
+            int timeAlone = notInAGroup.get(key);
+            if (timeAlone >= 6){
+                lonelyPeople.add(key);
+            }
+        }
     }
-
-
-
 }

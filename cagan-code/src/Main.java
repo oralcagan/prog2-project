@@ -9,5 +9,6 @@ public class Main {
         }
         long endTime = System.nanoTime();
         long total = endTime - startTime;
+        System.out.println(total);
     }
 }

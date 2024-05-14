@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,8 +9,8 @@ public class City {
     Group[] groups;
     PersonGenerator personGenerator = new PersonGenerator();
     GroupGenerator groupGenerator = new GroupGenerator();
-
-    HashMap<Integer,Integer> lonelyPeople = new HashMap<>();
+    HashSet<Integer> lonelyPeople = new HashSet<>();
+    HashMap<Integer,Integer> lonelinessCounter = new HashMap<>();
     float minGroupAffiliation;
     int numPeople;
     int numInterests;
@@ -20,46 +21,27 @@ public class City {
             groups[i] = groupGenerator.generateRandomGroup();
         }
         for (int i = 0; i < numPeople; i++) {
-            allPeople.put(i, personGenerator.generateRandomPerson());
-        }
-        HashSet<Integer> notInAGroup = new HashSet<>();
-        for (int key : allPeople.keySet()) {
-            for (int i = 0; i < numInterests; i++) {
-                boolean didJoin = groups[i].updateGroupStatus(allPeople, key, i, minGroupAffiliation);
-                if(!didJoin) {
-                    notInAGroup.add(key);
-                } else {
-                    notInAGroup.remove(key);
-                }
-            }
-        }
-        for(Integer key : notInAGroup) {
-            Integer value = this.lonelyPeople.putIfAbsent(key,1);
-            if(value != null) {
-                lonelyPeople.put(key,value+1);
-            }
+            allPeople.put(i, personGenerator.generateRandomPerson(numInterests));
         }
         this.numInterests = numInterests;
         this.minGroupAffiliation = minGroupAffiliation;
         this.numPeople = numPeople;
+        for(int i = 0; i < numPeople; i++) {
+            lonelinessCounter.put(i,0);
+        }
     }
 
     public void runTurn() {
-        for(Integer key : this.lonelyPeople.keySet()) {
-            boolean didJoin = false;
-            for(int i = 0; i < groups.length; i++) {
-                didJoin = groups[i].updateGroupStatus(allPeople,key,i,minGroupAffiliation);
-            }
-            if(didJoin) {
-                this.lonelyPeople.remove(key);
-            }
+        for(int key : this.lonelinessCounter.keySet()) {
+            int lastVal = this.lonelinessCounter.get(key);
+            this.lonelinessCounter.put(key,lastVal+1);
         }
         InteractionSet interactionSet = new InteractionSet();
-        for (int groupIndex = 0; groupIndex < numInterests; groupIndex++) {
+        for (int groupIndex = 0; groupIndex < this.numInterests; groupIndex++) {
             Group group = groups[groupIndex];
             List<Integer> memberList = group.members.stream().toList();
-            for (int i = 0; i < memberList.size(); i++) {
-                for (int j = 1; j < memberList.size(); j++) {
+            for (int i = 0; i < memberList.size()-1; i++) {
+                for (int j = i+1; j < memberList.size(); j++) {
                     Integer idPersonA = memberList.get(i);
                     Integer idPersonB = memberList.get(j);
                     if (!interactionSet.has(idPersonA, idPersonB)) {
@@ -67,19 +49,24 @@ public class City {
                         Person personA = allPeople.get(idPersonA);
                         Person personB = allPeople.get(idPersonB);
                         Person.makePeopleInteract(personA, personB, group);
-                        for (int k = 0; k < numInterests; k++) {
-                            Group groupK = groups[k];
-                            groupK.updateGroupStatus(allPeople, idPersonA, k, minGroupAffiliation);
-                            groupK.updateGroupStatus(allPeople, idPersonB, k, minGroupAffiliation);
-                        }
                     }
                 }
-
+            }
+        }
+        for(int key : this.allPeople.keySet()) {
+            boolean inAGroup = false;
+            for(int i = 0; i < this.numInterests; i++) {
+                inAGroup |= this.groups[i].updateGroupStatus(this.allPeople,key,i,this.minGroupAffiliation);
+            }
+            if(inAGroup) {
+                this.lonelinessCounter.put(key,0);
+                this.lonelyPeople.remove(key);
+                continue;
+            }
+            if(this.lonelinessCounter.get(key) >= 5) {
+                this.lonelyPeople.add(key);
             }
         }
         interactionSet.clear();
     }
-
-
-
 }

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/cagan-code/cagan-code.iml" filepath="$PROJECT_DIR$/cagan-code/cagan-code.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cagan/cagan.iml" filepath="$PROJECT_DIR$/cagan/cagan.iml" />
       <module fileurl="file://$PROJECT_DIR$/flavio-martelli/flavio-martelli.iml" filepath="$PROJECT_DIR$/flavio-martelli/flavio-martelli.iml" />
       <module fileurl="file://$PROJECT_DIR$/ozberk-code/ozberk-code.iml" filepath="$PROJECT_DIR$/ozberk-code/ozberk-code.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/sgs-prog2.iml" filepath="$PROJECT_DIR$/.idea/sgs-prog2.iml" />

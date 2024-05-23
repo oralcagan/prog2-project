@@ -1,48 +1,27 @@
-import java.util.HashMap;
-import java.util.Map;
-
 public class Person {
-    // Attributes
-    private int name;
-    private Map<String, Float> stats;
+    float charisma;
+    float[] interests = new float[5];
+    float health = 1;
 
-    // Constructor
-    public Person(int name, float charisma, float intelligence, float aggressiveness, float happiness) {
-        this.name = name;
-        stats = new HashMap<>();
-        stats.put("charisma", charisma);
-        stats.put("intelligence", intelligence);
-        stats.put("aggressiveness", aggressiveness);
-        stats.put("happiness", happiness);
+    Person(float charisma) {
+        this.charisma = charisma;
     }
 
-    // Method to update a specific stat by a certain amount
-    public void changeStat(String stat, float amount) {
-        if (stats.containsKey(stat)) {
-            float currentValue = stats.get(stat);
-            stats.put(stat, currentValue * (1 + amount));
-        } else {
-            System.out.println("Invalid stat name.");
+    public static void makePeopleInteract(Person personA,Person personB,Group group) {
+        float groupModifier = 0.2F;
+        if(group != null) {
+            groupModifier = group.influence;
         }
+        Person.changePerson(personA,personB,groupModifier);
+        Person.changePerson(personB,personA,groupModifier);
     }
 
-    // Getter for a specific stat
-    public float getStat(String stat) {
-        if (stats.containsKey(stat)) {
-            return stats.get(stat);
-        } else {
-            System.out.println("Invalid stat name.");
-            return 0.0f;
+    public static void changePerson(Person changer, Person changed,float rateOfChange) {
+        for(int i = 0; i < changer.interests.length; i++) {
+            changed.interests[i] += (changer.interests[i] - changed.interests[i])
+                    * changer.charisma
+                    * rateOfChange;
+            changed.interests[i] = Math.clamp(changed.interests[i],0.F,1.F);
         }
-    }
-
-    // Getter for the name
-    public int getName() {
-        return name;
-    }
-
-    // Setter for the name
-    public void setName(int name) {
-        this.name = name;
     }
 }

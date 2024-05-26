@@ -38,7 +38,7 @@ public class City {
         }
     }
 
-    public void runTurn() {
+    public void runTurn(int numOfTurn) {
         InteractionSet interactionSet = new InteractionSet();
 //        for (int key : lonelyPeople) {
 //            String String = "hi"; //just a placeholder, here it should be implemented the random interaction of the lonely people
@@ -91,11 +91,12 @@ public class City {
             }
         }
         interactionSet.clear();
-        for (int key: notInAGroup.keySet()){
-            int timeAlone = notInAGroup.get(key);
-            if (timeAlone >= 6){
-                lonelyPeople.add(key);
+        if (numOfTurn % 20 == 0){
+            for (int k = 0; k < numInterests; k++) {
+                Group groupK = groups[k];
+                System.out.println(groupK.members + "membri del gruppo" + k);
             }
+            System.out.println("---------------------------");
         }
     }
 }

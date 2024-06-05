@@ -1,8 +1,9 @@
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 public class City {
+    Random random = new Random();
     String name;
     List<Person> populus;
     public HashSet<Integer> people = new HashSet<>();
@@ -35,6 +36,21 @@ public class City {
         this.numPeople = numPeople;
     }
 
+    public void changePerson(int index, List<Person> populus){
+        Person changing = this.populus.get(index);
+        changing.charisma *= 0.75F;
+        float[] changing_interests = this.populus.get(index).interests;
+        for (int i = 0; i < changing.interests.length; i ++){
+            float sign = random.nextFloat();
+            float amount = random.nextFloat();
+            if (sign >= 0.5F){
+                changing_interests[i] *= 1.0F + amount;
+            }
+            else {
+                changing_interests[i] *= 1.0F - amount;
+            }
+        }
+    }
     public void runTurn() {
         for(Integer key : this.lonelyPeople) {
             boolean didJoin = false;

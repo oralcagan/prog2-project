@@ -15,10 +15,9 @@ public class Main {
             City city = new City(numInterests,10,minGroupInterest,populus);
             city.people = (HashSet<Integer>) populusIndex.clone();
             cities.add(city);
-            System.out.println(populusIndex);
         }
         for (City city : cities) {
-            System.out.println(city.people);
+            city.changePerson(11, populus);
         }
     }
 }

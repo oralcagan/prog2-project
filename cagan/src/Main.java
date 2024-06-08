@@ -2,22 +2,24 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        int numInterests = 5;
-        float minGroupInterest = 0.6F;
-        String[] cityNames = {"Milano", "Napoleon", "Roma"};
-        List<City> cities = new ArrayList<>();
-        ArrayList<Person> populus = new ArrayList<>();
-        HashSet<Integer> populusIndex = new HashSet<>();
-        int counter = 0;
-        PersonGenerator personGenerator = new PersonGenerator();
-        for (int i = 0; i < cityNames.length; i++){
-            counter = personGenerator.generatePopulus(10, populusIndex,populus, counter);
-            City city = new City(numInterests,10,minGroupInterest,populus);
-            city.people = (HashSet<Integer>) populusIndex.clone();
-            cities.add(city);
-        }
-        for (City city : cities) {
-            city.changePerson(11, populus);
+        String[] cityNames = new String[]{"Roma", "Milan", "Napoli"};
+        Simulation simulation = new Simulation(cityNames,5,0.7F);
+        int n = 200;
+        while(n > 0) {
+            simulation.runTurn();
+            if(n % 10 == 0) {
+                // Lonely people movement across cities
+                // From/To Roma Milan Napoli
+                // Roma      0    5     3
+                // Milan     2    0     7
+                // Napoli    3    2     0
+                // simulation.getLonelyPeopleMatrix()
+                System.out.println(Arrays.deepToString(simulation.getLonelyPeopleMatrix()));
+            }
+            // Ex.
+            // Number of people in a group
+            // simulation.cities.get((0)).groups[0].members.size();
+            n--;
         }
     }
 }

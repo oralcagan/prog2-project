@@ -4,31 +4,31 @@ import java.util.Random;
 
 public class City {
     Random random = new Random();
-    String name;
+    int id;
     List<Person> populus;
-    public HashSet<Integer> people = new HashSet<>();
+    HashSet<Integer> people = new HashSet<>();
     Group[] groups;
     GroupGenerator groupGenerator = new GroupGenerator();
-
     HashSet<Integer> lonelyPeople = new HashSet<>();
     float minGroupAffiliation;
     int numPeople;
     int numInterests;
 
-    City(int numInterests, int numPeople, float minGroupAffiliation, List<Person> populus) {
+    City(int id,int numInterests, int numPeople, float minGroupAffiliation, List<Person> populus,HashSet<Integer> people) {
+        this.id = id;
         this.populus = populus;
+        this.people = people;
         groups = new Group[numInterests];
         for (int i = 0; i < numInterests; i++) {
             groups[i] = groupGenerator.generateRandomGroup();
         }
         for (int key : this.people) {
+            boolean didJoin = false;
             for (int i = 0; i < numInterests; i++) {
-                boolean didJoin = groups[i].updateGroupStatus(this.populus, key, i, minGroupAffiliation);
-                if(!didJoin) {
-                    lonelyPeople.add(key);
-                } else {
-                    lonelyPeople.remove(key);
-                }
+                didJoin |= groups[i].updateGroupStatus(this.populus, key, i, minGroupAffiliation);
+            }
+            if(!didJoin) {
+                this.lonelyPeople.add(key);
             }
         }
         this.numInterests = numInterests;
@@ -36,37 +36,14 @@ public class City {
         this.numPeople = numPeople;
     }
 
-    public void changePerson(int index, List<Person> populus){
-        Person changing = this.populus.get(index);
-        changing.charisma *= 0.75F;
-        float[] changing_interests = this.populus.get(index).interests;
-        for (int i = 0; i < changing.interests.length; i ++){
-            float sign = random.nextFloat();
-            float amount = random.nextFloat();
-            if (sign >= 0.5F){
-                changing_interests[i] *= 1.0F + amount;
-            }
-            else {
-                changing_interests[i] *= 1.0F - amount;
-            }
-        }
-    }
     public void runTurn() {
-        for(Integer key : this.lonelyPeople) {
-            boolean didJoin = false;
-            for(int i = 0; i < groups.length; i++) {
-                didJoin = groups[i].updateGroupStatus(populus,key,i,minGroupAffiliation);
-            }
-            if(didJoin) {
-                this.lonelyPeople.remove(key);
-            }
-        }
         InteractionSet interactionSet = new InteractionSet();
         for (int groupIndex = 0; groupIndex < numInterests; groupIndex++) {
             Group group = groups[groupIndex];
             List<Integer> memberList = group.members.stream().toList();
             for (int i = 0; i < memberList.size(); i++) {
-                for (int j = 1; j < memberList.size(); j++) {
+                boolean isInGroup = false;
+                for (int j = i+1; j < memberList.size(); j++) {
                     Integer idPersonA = memberList.get(i);
                     Integer idPersonB = memberList.get(j);
                     if (!interactionSet.has(idPersonA, idPersonB)) {
@@ -76,16 +53,34 @@ public class City {
                         Person.makePeopleInteract(personA, personB, group);
                         for (int k = 0; k < numInterests; k++) {
                             Group groupK = groups[k];
-                            groupK.updateGroupStatus(populus, idPersonA, k, minGroupAffiliation);
+                            isInGroup |= groupK.updateGroupStatus(populus, idPersonA, k, minGroupAffiliation);
                             groupK.updateGroupStatus(populus, idPersonB, k, minGroupAffiliation);
                         }
                     }
+                }
+                if(!isInGroup) {
+                    Integer personA = memberList.get(i);
+                    lonelyPeople.add(personA);
                 }
             }
         }
         interactionSet.clear();
     }
 
+    public void removePerson(int personIndex) {
+        people.remove(personIndex);
+    }
 
+    public void addPerson(int personID, int groupID) {
+        this.people.add(personID);
+        this.groups[groupID].members.add(personID);
+    }
 
+    public void cleanLonelyPeople() {
+        lonelyPeople.clear();
+    }
+
+    public HashSet<Integer> getLonelyPeople() {
+        return lonelyPeople;
+    }
 }

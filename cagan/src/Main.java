@@ -3,7 +3,8 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         String[] cityNames = new String[]{"Roma", "Milan", "Napoli"};
-        Simulation simulation = new Simulation(cityNames,5,0.7F);
+        int[] numberOfPeopleInCities = new int[]{100,50,40};
+        Simulation simulation = new Simulation(cityNames,5,0.7F,numberOfPeopleInCities);
         int n = 200;
         while(n > 0) {
             simulation.runTurn();

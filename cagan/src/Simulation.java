@@ -15,14 +15,15 @@ public class Simulation {
     String[] cityNames;
     int[][] lonelyPeopleMatrix;
 
-    Simulation(String[] cityNames,int numInterests,float minGroupInterest) {
+    Simulation(String[] cityNames,int numInterests,float minGroupInterest,int[] numberOfPeopleInCities) {
         this.numInterests = numInterests;
         this.minGroupInterest = minGroupInterest;
         this.cityNames = cityNames;
         for (int i = 0; i < cityNames.length; i++){
-            counter = personGenerator.generatePopulus(200, populusIndex,populus, counter);
+            int numberOfPeopleInCity = numberOfPeopleInCities[i];
+            counter = personGenerator.generatePopulus(numberOfPeopleInCity, populusIndex,populus, counter);
             HashSet<Integer> peopleIndexSet = (HashSet<Integer>) populusIndex.clone();
-            City city = new City(i,numInterests,200,minGroupInterest,populus,peopleIndexSet);
+            City city = new City(i,numInterests,numberOfPeopleInCity,minGroupInterest,populus,peopleIndexSet);
             cities.add(city);
         }
     }

@@ -73,11 +73,11 @@ public class Simulation {
 
     private void changePerson(int index){
         Person changing = this.populus.get(index);
-        changing.charisma *= 0.75F;
+        changing.charisma *= 0.90F;
         float[] changing_interests = this.populus.get(index).interests;
         for (int i = 0; i < changing.interests.length; i ++){
             float sign = random.nextFloat();
-            float amount = random.nextFloat();
+            float amount = random.nextFloat(0.1F);
             if (sign >= 0.5F){
                 changing_interests[i] *= 1.0F + amount;
             }

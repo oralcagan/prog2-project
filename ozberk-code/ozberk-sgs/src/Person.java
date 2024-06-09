@@ -1,3 +1,5 @@
+import java.util.HashSet;
+
 public class Person {
     float charisma;
     float[] interests = new float[5];

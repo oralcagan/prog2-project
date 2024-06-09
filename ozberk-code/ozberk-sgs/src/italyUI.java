@@ -11,11 +11,13 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.transform.Scale;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class italyUI extends Application {
     @Override
     public void start(Stage primaryStage) {
+
         // Load the image
         Image image = new Image("ital.png");
         ImageView imageView = new ImageView(image);
@@ -44,29 +46,30 @@ public class italyUI extends Application {
         inputDialog.setTitle("Input Dialog");
         dialog.showAndWait().ifPresent(response -> {
             if (response == yesButtonType) {
-                // Ask for which city
-                inputDialog.setHeaderText("enter which city:");
-                String cityname = inputDialog.showAndWait().orElse("");
-
-                // Ask for number of interests
-                inputDialog.setHeaderText("Enter the number of interests for " + cityname + ":");
+                inputDialog.setHeaderText("Enter the number of interests for this simulation: ");
                 String numInterestsStr = inputDialog.showAndWait().orElse("");
                 int numInterests = Integer.parseInt(numInterestsStr);
 
-                // Ask for number of people
-                inputDialog.setHeaderText("Enter the number of people for " + cityname + ":");
-                String numPeopleStr = inputDialog.showAndWait().orElse("");
-                int numPeople = Integer.parseInt(numPeopleStr);
+                // All the stats that need to be saved and same for each city
+                // Set the number of interests for each city
+                for (int i = 0; i < citiesList.size(); i++) {
+                    City city = citiesList.get(i);
+                    city.numInterests = numInterests;
 
-                // Ask for minimum group affiliation
-                inputDialog.setHeaderText("Enter the minimum group affiliation for " + cityname + ":");
-                String minGroupAffiliationStr = inputDialog.showAndWait().orElse("");
-                float minGroupAffiliation = Float.parseFloat(minGroupAffiliationStr);
+                    inputDialog.setHeaderText("Population for " + city.cityName + ":");
+                    inputDialog.getEditor().setText(String.valueOf(city.numPeople)); // Set the current value
+                    String numPeopleStr = inputDialog.showAndWait().orElse("");
+                    int numPeople = Integer.parseInt(numPeopleStr);
 
-                City city = citiesList.findCityByName(cityname);
-                city.numInterests = numInterests;
-                city.numPeople = numPeople;
-                city.minGroupAffiliation = minGroupAffiliation;
+                    inputDialog.setHeaderText("Enter the minimum group affiliation for " + city.cityName + ":");
+                    inputDialog.getEditor().setText(String.valueOf(city.minGroupAffiliation)); // Set the current value
+                    String minGroupAffiliationStr = inputDialog.showAndWait().orElse("");
+                    float minGroupAffiliation = Float.parseFloat(minGroupAffiliationStr);
+
+                    city.numInterests = numInterests;
+                    city.numPeople = numPeople;
+                    city.minGroupAffiliation = minGroupAffiliation;
+                }
             }
 
             // Create a Circle for each city and add it to the Pane
@@ -80,13 +83,9 @@ public class italyUI extends Application {
                 // City stats are shown when the circle is clicked
                 circle.setOnMouseClicked((MouseEvent event) -> {
                     Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle(city.cityname);
+                    alert.setTitle(city.cityName);
                     alert.setHeaderText(null);
-                    alert.setContentText("Population: " + city.numPeople + "\n" +
-                            "Number of Interests: " + city.numInterests + "\n" +
-                            "Minimum Group Affiliation: " + city.minGroupAffiliation + "\n" +
-                            "Lonely People: " + city.lonelyPeople.size() + "\n" +
-                            "Groups: " + city.groups.length + "\n");
+                    alert.setContentText("Population: " + city.numPeople + "\n" + "Number of Interests: " + city.numInterests + "\n" + "Minimum Group Affiliation: " + city.minGroupAffiliation + "\n" + "Lonely People: " + city.lonelyPeople.size() + "\n" + "Groups: " + city.numInterests + "\n");
 
                     // Show the dialog in a non-modal way
                     alert.show();
@@ -135,9 +134,43 @@ public class italyUI extends Application {
             primaryStage.setTitle("Zoomable Image App");
             primaryStage.show();
 
+            runSimulation(citiesList);
         });
     }
 
+    private void runSimulation(CitiesList citiesList) {
+        String[] cityNames = new String[]{"Bologna", "Milan", "Napoli", "Roma", "Turin", "Venice", "Palermo", "Florence", "Bari", "Genova"};
+        int[] numberOfPeopleInCities = new int[cityNames.length];
+
+        for (int i = 0; i < cityNames.length; i++) {
+            City city = citiesList.findCityByName(cityNames[i]);
+            if (city != null) {
+                numberOfPeopleInCities[i] = city.numPeople;
+            }
+        }
+        Simulation simulation = new Simulation(citiesList, 5, 0.7F, numberOfPeopleInCities);
+        int n = 200;
+        while (n > 0) {
+            simulation.runTurn();
+            if (n % 10 == 0) {
+                // Lonely people movement across cities
+                // From/To Roma Milan Napoli
+                // Roma      0    5     3
+                // Milan     2    0     7
+                // Napoli    3    2     0
+                // simulation.getLonelyPeopleMatrix()
+                System.out.println(Arrays.deepToString(simulation.getLonelyPeopleMatrix()));
+            }
+            // Ex.
+            // Number of people in a group
+            // simulation.cities.get((0)).groups[0].members.size();
+            n--;
+        }
+    }
+
+    // here we need to add the final result excel alike table to show the results of the simulation
+    // from bologna to milan, napoli to roma etc. the number of people moved from one city to another
+    // Launch the application
     public static void main(String[] args) {
         launch(args);
     }

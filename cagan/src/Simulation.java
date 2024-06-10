@@ -5,25 +5,27 @@ import java.util.Random;
 
 public class Simulation {
     Random random = new Random();
-    int numInterests = 5;
-    float minGroupInterest = 0.6F;
+    int numInterests;
     List<City> cities = new ArrayList<>();
     ArrayList<Person> populus = new ArrayList<>();
     HashSet<Integer> populusIndex = new HashSet<>();
     int counter = 0;
     PersonGenerator personGenerator = new PersonGenerator();
-    String[] cityNames;
     int[][] lonelyPeopleMatrix;
+    CityInfo[] cityInfoList;
 
-    Simulation(String[] cityNames,int numInterests,float minGroupInterest,int[] numberOfPeopleInCities) {
-        this.numInterests = numInterests;
-        this.minGroupInterest = minGroupInterest;
-        this.cityNames = cityNames;
-        for (int i = 0; i < cityNames.length; i++){
-            int numberOfPeopleInCity = numberOfPeopleInCities[i];
+    CityInfo[] getCityInfoList() {
+        return this.cityInfoList;
+    }
+
+    Simulation(CityInfo[] cityInfoList, int numberOfInterests) {
+        this.numInterests = numberOfInterests;
+        this.cityInfoList = cityInfoList;
+        for (int i = 0; i < cityInfoList.length; i++){
+            int numberOfPeopleInCity = cityInfoList[i].population;
             counter = personGenerator.generatePopulus(numberOfPeopleInCity, populusIndex,populus, counter);
             HashSet<Integer> peopleIndexSet = (HashSet<Integer>) populusIndex.clone();
-            City city = new City(i,numInterests,numberOfPeopleInCity,minGroupInterest,populus,peopleIndexSet);
+            City city = new City(i,numInterests,numberOfPeopleInCity,cityInfoList[i].minGroupAffiliation,populus,peopleIndexSet);
             cities.add(city);
         }
     }
@@ -35,7 +37,7 @@ public class Simulation {
         this.moveLonelyPeople();
     }
 
-    private int getActualIndexFromSplitIndex(int bound, int removedIndex,int index) {
+    private int getActualIndexFromSplitIndex(int removedIndex,int index) {
         if(removedIndex > index) {
             return index;
         }
@@ -52,23 +54,21 @@ public class Simulation {
                 city.removePerson(personIndex);
 
                 int temp = random.nextInt(numCities-1);
-                int newCityIndex = this.getActualIndexFromSplitIndex(numCities-1,i,temp);
+                int newCityIndex = this.getActualIndexFromSplitIndex(i,temp);
                 City newCity = cities.get(newCityIndex);
 
                 int groupIndex = random.nextInt(numInterests);
                 newCity.addPerson(personIndex,groupIndex);
                 lonelyPeopleMatrix[i][newCityIndex] += 1;
+                newCity.numPeople += 1;
             }
+            city.numPeople -= city.lonelyPeople.size();
             city.cleanLonelyPeople();
         }
     }
 
     public int[][] getLonelyPeopleMatrix() {
         return lonelyPeopleMatrix;
-    }
-
-    public String[] getCityNames() {
-        return cityNames;
     }
 
     private void changePerson(int index){

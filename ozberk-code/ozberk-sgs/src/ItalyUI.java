@@ -8,18 +8,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 
 public class ItalyUI extends Application {
+    private Map<String, Circle> cityCircles = new HashMap<>();
     @Override
     public void start(Stage primaryStage) {
         // Ask for user input +++
@@ -46,18 +47,7 @@ public class ItalyUI extends Application {
 
     private List<UserInfoResult> AskForUserInput() {
 
-        CityInfo[] cityInfoList = new CityInfo[]{
-                new CityInfo(500, 400, "Bologna", 100, 0.7F),
-                new CityInfo(350, 250, "Milan", 100, 0.7f),
-                new CityInfo(750, 850, "Napoli", 100, 0.7F),
-                new CityInfo(200, 300, "Turin", 100, 0.7F),
-                new CityInfo(550, 700, "Roma", 100, 0.7F),
-                new CityInfo(600, 260, "Venezia", 100, 0.7F),
-                new CityInfo(750, 1200, "Palermo", 100, 0.7F),
-                new CityInfo(450, 470, "Firenze", 100, 0.7F),
-                new CityInfo(930, 800, "Bari", 100, 0.7F),
-                new CityInfo(250, 400, "Genova", 100, 0.7F),
-        };
+        CityInfo[] cityInfoList = new CityInfo[]{new CityInfo(500, 400, "Bologna", 100, 0.7F), new CityInfo(350, 250, "Milan", 100, 0.7f), new CityInfo(750, 850, "Napoli", 100, 0.7F), new CityInfo(200, 300, "Turin", 100, 0.7F), new CityInfo(550, 700, "Roma", 100, 0.7F), new CityInfo(600, 260, "Venezia", 100, 0.7F), new CityInfo(750, 1200, "Palermo", 100, 0.7F), new CityInfo(450, 470, "Firenze", 100, 0.7F), new CityInfo(930, 800, "Bari", 100, 0.7F), new CityInfo(250, 400, "Genova", 100, 0.7F),};
         // Create a Dialog for user choice
         List<UserInfoResult> userInfoResult = new ArrayList<>();
 
@@ -151,23 +141,38 @@ public class ItalyUI extends Application {
 
         // Create a CitiesList and get the list of cities
         CityInfo[] cityInfoList = userInfoResult.get(0).cityInfoList;
+        Map<String, Label> cityLabels = new HashMap<>();
+
+
+        // VBox to hold city population labels
+        VBox cityInfoVBox = new VBox();
+        cityInfoVBox.setSpacing(20);
+        cityInfoVBox.setLayoutX(1200);
+        cityInfoVBox.setLayoutY(300);
+        cityInfoVBox.setStyle("-fx-background-color: blue;");
+        pane.getChildren().add(cityInfoVBox);
+        cityInfoVBox.toFront();
 
         for (CityInfo city : cityInfoList) {
             Circle circle = new Circle(10); // Adjust the size as needed
-            Label label = new Label();
-            label.setLayoutX(city.Xaxis);
-            label.setLayoutY(city.Yaxis);
-            pane.getChildren().add(label);
+            Label cityCircle = new Label();
+            cityCircle.setLayoutX(city.Xaxis);
+            cityCircle.setLayoutY(city.Yaxis);
+            pane.getChildren().add(cityCircle);
 
+            Label cityLabel = new Label(city.cityName + ": " + city.population);
+            cityLabels.put(city.cityName, cityLabel); // Add label to the map
+            cityLabel.setTextFill(Color.RED); // Set text color
+            cityLabel.setFont(new Font(30)); // Set font size
+            cityInfoVBox.getChildren().add(cityLabel); // Add label to the VBox
             // City stats are shown when the circle is clicked
+
+            cityCircles.put(city.cityName, circle);
             circle.setOnMouseClicked((MouseEvent event) -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle(city.cityName);
                 alert.setHeaderText(null);
-                alert.setContentText("Starting Population: " + city.population +
-                        "\n" + "Minimum Group Affiliation: "
-                        + city.minGroupAffiliation + "\n"
-                        + "Groups: " + GroupLength + "\n");
+                alert.setContentText("Starting Population: " + city.population + "\n" + "Minimum Group Affiliation: " + city.minGroupAffiliation + "\n" + "Groups: " + GroupLength + "\n");
 
                 // Show the dialog in a non-modal way
                 alert.show();
@@ -188,37 +193,51 @@ public class ItalyUI extends Application {
             circle.setCenterX(city.Xaxis);
             circle.setCenterY(city.Yaxis);
         }
+        // Create a Label to display the information
+        Label infoLabel = new Label();
+        infoLabel.setTextFill(Color.RED);
+        infoLabel.setFont(new javafx.scene.text.Font("Arial", 40));
+        infoLabel.setStyle("-fx-background-color: blue; -fx-padding: 10px;");
+        pane.getChildren().add(infoLabel);
 
 
-        // Create an iterator for each list
+// Create an iterator for each list
         Iterator<TurnData> turnDataIterator = turnDataList.iterator();
 
-
-        // Create a Timeline to update the TextAreas every 5 seconds
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
             if (turnDataIterator.hasNext()) {
                 // for each group
+                TurnData turnData = turnDataIterator.next();
                 int[] groupPopulation = turnDataIterator.next().groupPopulation;
 
+                // Update the Label
+                infoLabel.setText("Population by Group: " + Arrays.toString(groupPopulation));
+                infoLabel.toFront();
+                CityData[] cityDatas = turnData.cityDatas;
+                for (int i = 0; i < cityDatas.length; i++) {
+                    CityData cityData = cityDatas[i];
+                    CityInfo cityInfo = cityInfoList[i];
+                    Label cityLabel = cityLabels.get(cityInfo.cityName);
+                    cityLabel.setText(cityInfo.cityName + ": " + cityData.population);
 
-                // Update the Alert
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Simulation Data");
-                alert.setHeaderText(null);
-                alert.setContentText(
-                        "Population: " + Arrays.toString(groupPopulation));
-                alert.show();
+                    Circle circle = cityCircles.get(cityInfo.cityName); // Get the circle for the city
+                    double radius = calculateRadius(cityData.population);
+                    circle.setRadius(radius);
+
+                    int currentPopulation = cityData.population;
+                    int startingPopulation = cityInfo.population;
+                    circle.setOnMouseClicked((MouseEvent ClickEvent) -> {
+                        showCityStats(primaryStage,cityInfo, currentPopulation, startingPopulation, GroupLength);
+                    });
+                }
             }
-
         }));
 
-        // Set the cycle count to the size of the lists
+// Set the cycle count to the size of the lists
         timeline.setCycleCount(turnDataList.size());
 
-        // Start the Timeline
+// Start the Timeline
         timeline.play();
-
-
         // Create a ScrollPane
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(pane);
@@ -239,7 +258,12 @@ public class ItalyUI extends Application {
         });
 
         // Create the Scene
-        Scene scene = new Scene(scrollPane, 800, 600);
+        Scene scene = new Scene(scrollPane, 1000, 650);
+
+        // Set the initial position of the label
+
+        infoLabel.setLayoutX(1200);
+        infoLabel.setLayoutY(1000);
 
         // Set the Scene to the Stage
         primaryStage.setScene(scene);
@@ -247,6 +271,45 @@ public class ItalyUI extends Application {
         primaryStage.show();
 
 
+    }
+
+    private double calculateRadius(int population) {
+        // Adjust this factor as needed to control the scaling of the circle based on population
+        double scaleFactor = 1.5;
+        // Calculate radius based on population
+        return Math.sqrt(population) * scaleFactor;
+    }
+
+    private void showCityStats(Stage primaryStage,CityInfo cityInfo, int currentPopulation, int startingPopulation, int GroupLength) {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(cityInfo.cityName);
+        alert.setHeaderText(null);
+        alert.setContentText("Starting Population: " + startingPopulation + "\n" +
+                "Current Population: " + currentPopulation + "\n" +
+                "Minimum Group Affiliation: " + cityInfo.minGroupAffiliation + "\n" +
+                "Groups: " + GroupLength + "\n");
+
+        // Show the dialog in a non-modal way
+        alert.show();
+
+        // Estimate the size of the window decorations
+        double titleBarHeight = 39.0; // This is an estimate, adjust as needed
+        double windowBorderWidth = 40.0; // This is an estimate, adjust as needed
+
+        // Position the dialog at the top right corner of the application, inside the window decorations
+        // Position the dialog at the top right corner of the application, inside the window borders
+        Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        titleBarHeight = primaryStage.getHeight() - primaryStage.getScene().getHeight();
+        windowBorderWidth = primaryStage.getWidth() - primaryStage.getScene().getWidth();
+
+        // Positioning calculations
+        alertStage.setX(primaryStage.getX() + primaryStage.getWidth() - alertStage.getWidth() - windowBorderWidth);
+        alertStage.setY(primaryStage.getY() + titleBarHeight);
+
+        // Bring the dialog to front
+        alertStage.requestFocus();
+        alert.getDialogPane().getScene().getWindow().requestFocus();
     }
 
     public static void main(String[] args) {

@@ -34,6 +34,7 @@ class CityData {
         CityData[] cityDatas = new CityData[simulation.cities.size()];
         for(int i = 0; i < simulation.cities.size(); i++) {
             City city = simulation.cities.get(i);
+            System.out.println();
             int[] groupPopulation = new int[city.numInterests];
             for(int j = 0; j < city.numInterests; j++) {
                 groupPopulation[j] = city.groups[j].members.size();

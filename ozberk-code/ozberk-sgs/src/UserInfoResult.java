@@ -3,4 +3,3 @@ class UserInfoResult {
     int numInterests;
     int turns;
 }
-

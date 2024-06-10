@@ -1,24 +1,20 @@
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Simulation {
     Random random = new Random();
     int numInterests = 5;
-    float minGroupInterest = 0.6F;
+    float minGroupInterest = 0.5F;
     CitiesList cities ;
     ArrayList<Person> populus = new ArrayList<>();
     HashSet<Integer> populusIndex = new HashSet<>();
     int counter = 0;
     PersonGenerator personGenerator = new PersonGenerator();
-    String[] cityNames;
     int[][] lonelyPeopleMatrix;
 
     Simulation(CitiesList cities,int numInterests,float minGroupInterest,int[] numberOfPeopleInCities) {
         this.numInterests = numInterests;
         this.cities = cities;
-        this.minGroupInterest = minGroupInterest;
+
         for (int i = 0; i < cities.size(); i++){
             int numberOfPeopleInCity = numberOfPeopleInCities[i];
             counter = personGenerator.generatePopulus(numberOfPeopleInCity, populusIndex,populus, counter);
@@ -68,7 +64,7 @@ public class Simulation {
     }
 
     public String[] getCityNames() {
-        return cityNames;
+        return cities.getCities().stream().map(city -> city.cityName).toArray(String[]::new);
     }
 
     private void changePerson(int index){
@@ -85,5 +81,63 @@ public class Simulation {
                 changing_interests[i] *= 1.0F - amount;
             }
         }
+    }
+    public List<int[][]> runSimulation(CitiesList citiesList) {
+        String[] cityNames = citiesList.getCities().stream().map(city -> city.cityName).toArray(String[]::new);
+        int[] numberOfPeopleInCities = citiesList.getCities().stream().mapToInt(city -> city.numPeople).toArray();
+        int[] peopleInCities = Arrays.copyOf(numberOfPeopleInCities, numberOfPeopleInCities.length);
+        float minGroupInterest = citiesList.getCities().get(0).minGroupAffiliation;
+        int numInterests = citiesList.getCities().get(0).numInterests;
+        List<int[][]> lonelyPeopleMatrixList = new ArrayList<>();
+        List<int[]> populationHistory = new ArrayList<>();
+        Simulation simulation = new Simulation(citiesList,numInterests,minGroupInterest , numberOfPeopleInCities);
+        int n = 200;
+        while (n > 0) {
+            simulation.runTurn();
+            if (n % 10 == 0) {
+
+                int[][] lonelyPeopleMatrix = simulation.getLonelyPeopleMatrix();
+                System.out.println(Arrays.deepToString(lonelyPeopleMatrix));
+                // Calculate the number of people in each city after the turn
+                lonelyPeopleMatrixList.add(lonelyPeopleMatrix);
+                for (int i = 0; i < cityNames.length; i++) {
+                    for (int j = 0; j < cityNames.length; j++) {
+                        if (i != j) {
+                            peopleInCities[i] -= lonelyPeopleMatrix[i][j]; // subtract people who left city i
+                            peopleInCities[i] += lonelyPeopleMatrix[j][i]; // add people who moved to city i from city j
+                        }
+                    }
+                }
+                populationHistory.add(peopleInCities.clone());
+                // Print the number of people in each city after the turn
+                System.out.println(Arrays.toString(peopleInCities));
+
+            }
+            n--;
+        }
+        for (int[] population : populationHistory) {
+            System.out.println(Arrays.toString(population));
+
+        }
+        return lonelyPeopleMatrixList;
+    }
+    public List<int[]> populationHistory(List<int[][]> lonelyPeopleMatrixList){
+        List<int[]> populationHistory = new ArrayList<>();
+        int lengthCities = lonelyPeopleMatrixList.get(0).length;
+        int[] peopleInCities = new int[lengthCities];
+
+        for (int[][] lonelyPeopleMatrix : lonelyPeopleMatrixList) {
+            for (int i = 0; i < lengthCities; i++) {
+                for (int j = 0; j < lengthCities; j++) {
+                    if (i != j) {
+                        peopleInCities[i] -= lonelyPeopleMatrix[i][j]; // subtract people who left city i
+                        peopleInCities[i] += lonelyPeopleMatrix[j][i]; // add people who moved to city i from city j
+                    }
+                }
+            }
+            populationHistory.add(peopleInCities.clone());
+        }
+
+        return populationHistory;
     }
 }

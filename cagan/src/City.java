@@ -51,12 +51,12 @@ public class City {
                         Person personA = populus.get(idPersonA);
                         Person personB = populus.get(idPersonB);
                         Person.makePeopleInteract(personA, personB, group);
-                        for (int k = 0; k < numInterests; k++) {
-                            Group groupK = groups[k];
-                            isInGroup |= groupK.updateGroupStatus(populus, idPersonA, k, minGroupAffiliation);
-                            groupK.updateGroupStatus(populus, idPersonB, k, minGroupAffiliation);
-                        }
                     }
+                }
+                for (int k = 0; k < numInterests; k++) {
+                    int personID = memberList.get(i);
+                    Group groupK = groups[k];
+                    isInGroup |= groupK.updateGroupStatus(populus,personID, k, minGroupAffiliation);
                 }
                 if(!isInGroup) {
                     Integer personA = memberList.get(i);

@@ -24,7 +24,7 @@ public class Simulation {
         for (int i = 0; i < cityInfoList.length; i++){
             int numberOfPeopleInCity = cityInfoList[i].population;
             counter = personGenerator.generatePopulus(numberOfPeopleInCity, populusIndex,populus, counter);
-            HashSet<Integer> peopleIndexSet = (HashSet<Integer>) populusIndex.clone();
+            HashSet<Integer> peopleIndexSet = new HashSet<>(populusIndex);
             City city = new City(i,numInterests,numberOfPeopleInCity,cityInfoList[i].minGroupAffiliation,populus,peopleIndexSet);
             cities.add(city);
         }
@@ -50,7 +50,7 @@ public class Simulation {
         for(int i = 0; i < numCities; i++) {
             City city = cities.get(i);
             for(int personIndex : city.lonelyPeople) {
-                //this.changePerson(personIndex);
+                this.changePerson(personIndex);
                 city.removePerson(personIndex);
 
                 int temp = random.nextInt(numCities-1);
@@ -73,17 +73,6 @@ public class Simulation {
 
     private void changePerson(int index){
         Person changing = this.populus.get(index);
-        changing.charisma *= 0.90F;
-        float[] changing_interests = this.populus.get(index).interests;
-        for (int i = 0; i < changing.interests.length; i ++){
-            float sign = random.nextFloat();
-            float amount = random.nextFloat(0.1F);
-            if (sign >= 0.5F){
-                changing_interests[i] *= 1.0F + amount;
-            }
-            else {
-                changing_interests[i] *= 1.0F - amount;
-            }
-        }
+        changing.charisma *= 0.98F;
     }
 }

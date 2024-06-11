@@ -146,12 +146,18 @@ public class ItalyUI extends Application {
 
         // VBox to hold city population labels
         VBox cityInfoVBox = new VBox();
-        cityInfoVBox.setSpacing(20);
-        cityInfoVBox.setLayoutX(1200);
-        cityInfoVBox.setLayoutY(300);
-        cityInfoVBox.setStyle("-fx-background-color: blue;");
+        cityInfoVBox.setSpacing(30);
+        cityInfoVBox.setLayoutX(1150);
+        cityInfoVBox.setLayoutY(250);
+        cityInfoVBox.setStyle("-fx-background-color: white;");
+
         pane.getChildren().add(cityInfoVBox);
         cityInfoVBox.toFront();
+
+        Label turnNumberLabel = new Label("Turn: 0");
+        turnNumberLabel.setTextFill(Color.GREEN);
+        turnNumberLabel.setFont(new javafx.scene.text.Font("Arial", 50));
+        cityInfoVBox.getChildren().add(turnNumberLabel);
 
         for (CityInfo city : cityInfoList) {
             Circle circle = new Circle(10); // Adjust the size as needed
@@ -162,9 +168,10 @@ public class ItalyUI extends Application {
 
             Label cityLabel = new Label(city.cityName + ": " + city.population);
             cityLabels.put(city.cityName, cityLabel); // Add label to the map
-            cityLabel.setTextFill(Color.RED); // Set text color
-            cityLabel.setFont(new Font(30)); // Set font size
+            cityLabel.setTextFill(Color.BLACK); // Set text color
+            cityLabel.setFont(new javafx.scene.text.Font("Arial", 40)); // Set font size
             cityInfoVBox.getChildren().add(cityLabel); // Add label to the VBox
+
             // City stats are shown when the circle is clicked
 
             cityCircles.put(city.cityName, circle);
@@ -195,43 +202,49 @@ public class ItalyUI extends Application {
         }
         // Create a Label to display the information
         Label infoLabel = new Label();
-        infoLabel.setTextFill(Color.RED);
+        infoLabel.setTextFill(Color.BLACK);
         infoLabel.setFont(new javafx.scene.text.Font("Arial", 40));
-        infoLabel.setStyle("-fx-background-color: blue; -fx-padding: 10px;");
+        infoLabel.setStyle("-fx-background-color: white; -fx-padding: 10px;");
         pane.getChildren().add(infoLabel);
 
 
 // Create an iterator for each list
         Iterator<TurnData> turnDataIterator = turnDataList.iterator();
 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             if (turnDataIterator.hasNext()) {
                 // for each group
                 TurnData turnData = turnDataIterator.next();
-                int[] groupPopulation = turnDataIterator.next().groupPopulation;
+                int[] groupPopulation = turnData.groupPopulation;
 
-                // Update the Label
-                infoLabel.setText("Population by Group: " + Arrays.toString(groupPopulation));
-                infoLabel.toFront();
-                CityData[] cityDatas = turnData.cityDatas;
-                for (int i = 0; i < cityDatas.length; i++) {
-                    CityData cityData = cityDatas[i];
-                    CityInfo cityInfo = cityInfoList[i];
-                    Label cityLabel = cityLabels.get(cityInfo.cityName);
-                    cityLabel.setText(cityInfo.cityName + ": " + cityData.population);
+                    // Update the Label
+                    infoLabel.setText("Population by Group: " + Arrays.toString(groupPopulation));
+                    infoLabel.toFront();
+                    CityData[] cityDatas = turnData.cityDatas;
+                    for (int i = 0; i < cityDatas.length; i++) {
+                        int currentTurn = i;
+                        CityData cityData = cityDatas[i];
+                        CityInfo cityInfo = cityInfoList[i];
+                        Label cityLabel = cityLabels.get(cityInfo.cityName);
+                        cityLabel.setText(cityInfo.cityName + ": " + cityData.population);
 
-                    Circle circle = cityCircles.get(cityInfo.cityName); // Get the circle for the city
-                    double radius = calculateRadius(cityData.population);
-                    circle.setRadius(radius);
+                        // We need to add the city turn to vbox
+                        Circle circle = cityCircles.get(cityInfo.cityName); // Get the circle for the city
+                        double radius = calculateRadius(cityData.population);
+                        circle.setRadius(radius);
 
-                    int currentPopulation = cityData.population;
-                    int startingPopulation = cityInfo.population;
-                    circle.setOnMouseClicked((MouseEvent ClickEvent) -> {
-                        showCityStats(primaryStage,cityInfo, currentPopulation, startingPopulation, GroupLength);
-                    });
+                        int currentPopulation = cityData.population;
+                        int startingPopulation = cityInfo.population;
+
+
+                        circle.setOnMouseClicked((MouseEvent ClickEvent) -> {
+                            showCityStats(primaryStage,cityInfo, currentPopulation, startingPopulation, GroupLength);
+                        });
+                    }
+                int currentTurnNumber = turnDataList.indexOf(turnData);
+                turnNumberLabel.setText("Turn: " + currentTurnNumber);
                 }
-            }
-        }));
+            }));
 
 // Set the cycle count to the size of the lists
         timeline.setCycleCount(turnDataList.size());
@@ -262,8 +275,8 @@ public class ItalyUI extends Application {
 
         // Set the initial position of the label
 
-        infoLabel.setLayoutX(1200);
-        infoLabel.setLayoutY(1000);
+        infoLabel.setLayoutX(1150);
+        infoLabel.setLayoutY(1100);
 
         // Set the Scene to the Stage
         primaryStage.setScene(scene);

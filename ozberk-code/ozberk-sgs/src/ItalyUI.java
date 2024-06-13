@@ -268,7 +268,7 @@ public class ItalyUI extends Application {
 
         // Set the Scene to the Stage
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Crazy");
+        primaryStage.setTitle("Italy");
         primaryStage.show();
 
 

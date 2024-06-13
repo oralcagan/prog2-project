@@ -13,7 +13,6 @@ public class Simulation {
     PersonGenerator personGenerator = new PersonGenerator();
     int[][] lonelyPeopleMatrix;
     CityInfo[] cityInfoList;
-
     CityInfo[] getCityInfoList() {
         return this.cityInfoList;
     }
@@ -23,7 +22,7 @@ public class Simulation {
         this.cityInfoList = cityInfoList;
         for (int i = 0; i < cityInfoList.length; i++){
             int numberOfPeopleInCity = cityInfoList[i].population;
-            counter = personGenerator.generatePopulus(numberOfPeopleInCity, populusIndex,populus, counter);
+            counter = personGenerator.generatePopulus(numberOfPeopleInCity, populusIndex,populus, counter,numberOfInterests);
             HashSet<Integer> peopleIndexSet = new HashSet<>(populusIndex);
             City city = new City(i,numInterests,numberOfPeopleInCity,cityInfoList[i].minGroupAffiliation,populus,peopleIndexSet);
             cities.add(city);
@@ -73,6 +72,6 @@ public class Simulation {
 
     private void changePerson(int index){
         Person changing = this.populus.get(index);
-        changing.charisma *= 0.98F;
+        changing.charisma *= 0.95F;
     }
 }
